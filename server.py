@@ -8,7 +8,6 @@ from flask_login import (
     login_user,
     login_required,
     logout_user,
-    current_user,
 )
 
 from data import db_session
@@ -159,10 +158,20 @@ class Task:
             return True
 
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "yandexlyceum_secret_key"
 login_manager = LoginManager()
-login_manager.init_app(app)
+
+
+def create_app():
+    app = Flask(__name__)
+    app.config["SECRET_KEY"] = "yandexlyceum_secret_key"
+    login_manager.init_app(app)
+
+    db_session.global_init("db/DataBase.db")
+
+    return app
+
+
+app = create_app()
 
 
 @login_manager.user_loader
@@ -569,5 +578,5 @@ def leader_board():
 
 
 if __name__ == "__main__":
-    db_session.global_init("db/DataBase.db")
-    app.run(host="0.0.0.0", port=8002)
+    # create_app()
+    app.run()
