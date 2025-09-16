@@ -10,6 +10,8 @@ from flask_login import (
     logout_user,
 )
 
+from flask_cors import CORS
+
 from data import db_session
 from data.users import User
 from data.animals import Animal
@@ -96,8 +98,7 @@ class Task:
                     if (
                         random_index != current_question
                         and random_index not in list_random_wrong_words
-                    ):
-                        list_random_wrong_words.append(random_index)
+                    ): list_random_wrong_words.append(random_index)
                 list_button_text_mode1 = [
                     lst_tasks[current_question][1],
                     lst_tasks[list_random_wrong_words[0]][1],
@@ -173,6 +174,7 @@ def create_app():
 
 app = create_app()
 
+CORS(app, origins="http://рудзынг.рф")
 
 @login_manager.user_loader
 def load_user(user_id):
