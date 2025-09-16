@@ -259,6 +259,19 @@ def mode_one():
     user_points_mode1 = session.get("user_points_mode1")
     current_hint = session.get("current_hint")
     list_button_text_mode1 = session.get("list_button_text_mode1")
+
+    print(
+        f"lst_tasks: {lst_tasks}",
+        f"lst_imgs: {lst_imgs}",
+        f"count_wrong_answer: {count_wrong_answer}",
+        f"name_animal: {name_animal}",
+        f"user_points_mode1: {user_points_mode1}",
+        f"current_hint: {current_hint}",
+        f"list_button_text_mode1: {list_button_text_mode1}",
+        sep="\n",
+        end="[END LINES]",
+    )
+
     if current_question < len(lst_tasks):
         question = lst_tasks[current_question][0]
 
@@ -400,6 +413,14 @@ def mode_two():
     lst_imgs = session.get("lst_imgs", [])
     user_points_mode2 = session.get("user_points_mode2")
     count_wrong_answer = session.get("count_wrong_answer")
+
+    print(
+        f"lst_tasks: {lst_tasks}",
+        f"lst_imgs: {lst_imgs}",
+        f"count_wrong_answer: {count_wrong_answer}",
+        sep="\n",
+        end="[END LINES]",
+    )
 
     if request.method == "POST":
         selected_answer = request.form.get("btn")
