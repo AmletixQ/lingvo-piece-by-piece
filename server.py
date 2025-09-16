@@ -98,7 +98,8 @@ class Task:
                     if (
                         random_index != current_question
                         and random_index not in list_random_wrong_words
-                    ): list_random_wrong_words.append(random_index)
+                    ):
+                        list_random_wrong_words.append(random_index)
                 list_button_text_mode1 = [
                     lst_tasks[current_question][1],
                     lst_tasks[list_random_wrong_words[0]][1],
@@ -174,7 +175,15 @@ def create_app():
 
 app = create_app()
 
-CORS(app, origins="http://рудзынг.рф")
+CORS(app, origins=["http://рудзынг.рф", "http://xn--c1abjyms2d.xn--p1ai"])
+
+
+@app.before_request
+def logging_requests():
+    print(
+        f"Real request: IP={request.remote_addr}, HOST={request.host}, Referer={request.referrer}, URL={request.url}"
+    )
+
 
 @login_manager.user_loader
 def load_user(user_id):
