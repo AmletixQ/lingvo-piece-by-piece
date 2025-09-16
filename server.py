@@ -1,7 +1,6 @@
 import os
 import random
 import json
-
 from flask import Flask, render_template, redirect, request, session
 from flask_login import (
     LoginManager,
@@ -253,13 +252,13 @@ def select_level():
 def mode_one():
     current_question = session.get("current_question")
 
-    lst_tasks = json.loads(session.get("lst_tasks", []))
-    lst_imgs = json.loads(session.get("lst_imgs", []))
+    lst_tasks = session.get("lst_tasks", [])
+    lst_imgs = session.get("lst_imgs", [])
     count_wrong_answer = session.get("count_wrong_answer")
     name_animal = session.get("name_animal")
     user_points_mode1 = session.get("user_points_mode1")
     current_hint = session.get("current_hint")
-    list_button_text_mode1 = json.loads(session.get("list_button_text_mode1"))
+    list_button_text_mode1 = session.get("list_button_text_mode1")
     if current_question < len(lst_tasks):
         question = lst_tasks[current_question][0]
 
@@ -335,12 +334,10 @@ def mode_one():
             session["user_points_mode1"] = user_points_mode1
             session["btn_hint_text"] = btn_hint_text
 
-            list_button_text_mode1 = json.loads(
-                session.get("list_button_text_mode1", [])
-            )
-            lst_imgs = json.loads(session.get("lst_imgs", []))
+            list_button_text_mode1 = session.get("list_button_text_mode1", [])
+            lst_imgs = session.get("lst_imgs", [])
             current_question = session.get("current_question", 1)
-            lst_tasks = json.loads(session.get("lst_tasks", []))
+            lst_tasks = session.get("lst_tasks", [])
             if current_question < len(lst_tasks):
                 question = lst_tasks[current_question][0]
             else:
@@ -399,8 +396,8 @@ def mode_one():
 @app.route("/mode_two", methods=["GET", "POST"])
 def mode_two():
     current_question = session.get("current_question")
-    lst_tasks = json.loads(session.get("lst_tasks", []))
-    lst_imgs = json.loads(session.get("lst_imgs", []))
+    lst_tasks = session.get("lst_tasks", [])
+    lst_imgs = session.get("lst_imgs", [])
     user_points_mode2 = session.get("user_points_mode2")
     count_wrong_answer = session.get("count_wrong_answer")
 
@@ -474,9 +471,9 @@ def mode_two():
             list_button_text_mode1 = json.loads(
                 session.get("list_button_text_mode1", [])
             )
-            lst_imgs = json.loads(session.get("lst_imgs", []))
+            lst_imgs = session.get("lst_imgs", [])
             current_question = session.get("current_question", 1)
-            lst_tasks = json.loads(session.get("lst_tasks", []))
+            lst_tasks = session.get("lst_tasks", [])
             if current_question < len(lst_tasks):
                 question = lst_tasks[current_question][0]
             else:
@@ -547,10 +544,10 @@ def mode_two():
     current_hint = int(session.get("current_hint"))
     btn_hint_text = session.get("btn_hint_text")
     hint_text = session.get("hint_text")
-    list_button_img_mode2 = json.loads(session.get("list_button_img_mode2"))
-    lst_imgs = json.loads(session.get("lst_imgs"))
+    list_button_img_mode2 = session.get("list_button_img_mode2")
+    lst_imgs = session.get("lst_imgs")
     current_question = int(session.get("current_question"))
-    lst_tasks = json.loads(session.get("lst_tasks"))
+    lst_tasks = session.get("lst_tasks")
     audio = session.get("audio")
 
     print(audio)
