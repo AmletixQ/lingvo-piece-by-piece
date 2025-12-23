@@ -236,10 +236,7 @@ def select_level():
         selected_mode = request.form.get("btn")
 
         if selected_mode == "1":
-            session["mode_value"] = 1
-            task.get_all_from_task()
-            task.update_level()
-            return redirect("/mode_one")
+            return redirect("/select_mode1_levels")
         elif selected_mode == "2":
             session["mode_value"] = 2
             task.get_all_from_task()
@@ -248,6 +245,51 @@ def select_level():
 
     return render_template("select_level.html")
 
+
+@app.route('/select_mode1_levels')
+def select_mode1_levels():
+    session_db = db_session.create_session()
+    all_levels = session_db.query(ModeOne).all()
+    session_db.close()
+
+    all_level_ids = [level.id for level in all_levels]
+    available_levels = [1]
+    
+    if len(all_level_ids) >= 2:
+        available_levels.append(2)
+    
+    if len(all_level_ids) >= 3:
+        available_levels.append(3)
+    
+    return render_template('select_mode1_levels.html', 
+                         available_levels=available_levels,
+                         user_points=0)  
+
+
+
+@app.route('/mode_one/level/<int:level_id>')
+def mode_one_level(level_id):
+    # Устанавливаем режим 1
+    session["mode_value"] = 1
+    
+    # Получаем конкретный уровень по ID
+    session_db = db_session.create_session()
+    level = session_db.query(ModeOne).filter(ModeOne.id == level_id).first()
+    session_db.close()
+    
+    if not level:
+        return "Уровень не найден", 404
+    
+    # Устанавливаем случайный ID на основе выбранного уровня
+    session["random_id"] = level.id_animal
+    
+    # Инициализируем задачу
+    task.get_tasks_by_random_id()
+    task.get_name_animal()
+    task.update_level()
+    
+    # Переходим в игровой режим
+    return redirect('/mode_one')
 
 @app.route("/mode_one", methods=["GET", "POST"])
 def mode_one():
