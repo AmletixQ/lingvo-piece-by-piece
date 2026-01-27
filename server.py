@@ -10,6 +10,8 @@ from flask_login import (
     logout_user,
 )
 
+import requests
+
 from data import db_session
 from data.users import User
 from data.animals import Animal
@@ -186,6 +188,25 @@ def index():
     global task
     task = Task()
     return render_template("main_window_piece_by_piece.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """
+    Функция, реализующая логику входа через интеграцию внешнего API рудзынг.рф
+    """
+    if request.method == "GET":
+        return render_template("login_form.html")
+    elif request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        response = requests.post(
+            "http://158.160.104.26:9001/api/account/login",
+            json={"email": email, "password": password},
+        )
+
+        print(response)
 
 
 @app.route("/rules")
