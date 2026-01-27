@@ -1,0 +1,103 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+:root {
+  --background-color: #1e1d24;
+  --primary-color: #f82e60;
+  --secondary-color: #07d2cf;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  color: var(--primary-color);
+  font-family: "Montserrat", sans-serif;
+}
+
+body {
+  background-color: #fffff0;
+
+  width: 100%;
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+input {
+  background-color: transparent;
+
+  outline: none;
+  border: none;
+  border-bottom: 2px solid var(--primary-color);
+
+  font-size: 18px;
+  color: var(--primary-color);
+  
+}
+
+input::placeholder {
+  color: var(--secondary-color);
+}
+
+.login-container {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+
+  background-color: var(--background-color);
+  padding: 40px;
+  border-radius: 32px;
+}
+
+.login-container h1 {
+  font-size: 32px;
+  text-align: center;
+}
+
+#login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 18px;
+}
+
+#login-button {
+  margin-top: 16px;
+  padding: 12px;
+
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 8px;
+
+  font-size: 18px;
+  color: #ffffff;
+  cursor: pointer;
+
+  transition: all 0.3s linear;
+
+}
+
+#login-button:hover {
+  background-color: var(--secondary-color);
+}
+
+.return-link {
+  position: absolute;
+
+  top: 5%;
+  left: 85%;
+}
