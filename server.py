@@ -8,10 +8,7 @@ from flask_login import (
     login_user,
     login_required,
     logout_user,
-    current_user,
 )
-
-from flask_cors import CORS
 
 from data import db_session
 from data.users import User
@@ -161,19 +158,20 @@ class Task:
             return True
 
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "yandexlyceum_secret_key"
 login_manager = LoginManager()
-login_manager.init_app(app)
-
-CORS(app, origins=["http://рудзынг.рф", "http://xn--c1abjyms2d.xn--p1ai"])
 
 
-@app.before_request
-def logging_requests():
-    print(
-        f"Real request: IP={request.remote_addr}, HOST={request.host}, Referer={request.referrer}, URL={request.url}"
-    )
+def create_app():
+    app = Flask(__name__)
+
+    app.config["SECRET_KEY"] = "yandexlyceum_secret_key"
+    login_manager.init_app(app)
+    db_session.global_init("db/DataBase.db")
+
+    return app
+
+
+app = create_app()
 
 
 @login_manager.user_loader
@@ -199,7 +197,6 @@ USER_DATA = {"name": "TEST", "password": "TEST_PASSWORD"}
 
 
 def commit_user():
-
     db_sess = db_session.create_session()
 
     user = User(
@@ -579,6 +576,6 @@ def leader_board():
     return render_template("leader_board.html", users=enumerated_users)
 
 
+# for local develop
 if __name__ == "__main__":
-    db_session.global_init("db/DataBase.db")
-    app.run(host="0.0.0.0", port=8002)
+    app.run()
