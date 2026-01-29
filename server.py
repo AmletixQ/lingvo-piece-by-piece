@@ -19,6 +19,9 @@ from data.ModeOne import ModeOne
 from data.ModeTwo import ModeTwo
 
 
+API_URL = "https://рудзынг.рф/api"
+
+
 class Task:
     def __init__(self):
         session["current_question"] = 0
@@ -146,18 +149,35 @@ class Task:
 
     def check_answer_animal(self, user_input):
         name_animal = session.get("name_animal")
-        user_points_mode1 = session.get("user_points_mode1")
-        user_points_mode2 = session.get("user_points_mode2")
         mode_value = session.get("mode_value")
-        if user_input.lower().strip() == name_animal:
-            # db_sess = db_session.create_session()
-            # user = db_sess.query(User).filter(User.id == current_user.id).first()
-            # if mode_value == 1:
-            #     user.user_points_mode1 += user_points_mode1
-            # elif mode_value == 2:
-            #     user.user_points_mode2 += user_points_mode2
-            # db_sess.commit()
+
+        if user_input.lower().strip() != name_animal.lower().strip():
+            return False
+
+        user_id = session.get("rudzyng_user_id")
+        if not user_id:
             return True
+
+        points_to_add = 0
+        if mode_value == 1:
+            points_to_add = session.get("user_points_mode1", 0)
+        elif mode_value == 2:
+            points_to_add = session.get("user_points_mode2", 0)
+
+        if points_to_add <= 0:
+            return True
+
+        try:
+            resp = requests.post(
+                f"{API_URL}/users/{user_id}/points", json={"amount": points_to_add}
+            )
+            resp.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(
+                f"Ошибка начисления баллов: {e} — {resp.text if 'resp' in locals() else ''}"
+            )
+
+        return True
 
 
 login_manager = LoginManager()
@@ -192,21 +212,42 @@ def index():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    """
-    Функция, реализующая логику входа через интеграцию внешнего API рудзынг.рф
-    """
     if request.method == "GET":
         return render_template("login_form.html")
-    elif request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
 
-        response = requests.post(
-            "http://158.160.104.26:9001/api/account/login",
-            json={"email": email, "password": password},
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    if not email or not password:
+        return render_template("login_form.html", error="Заполните все поля")
+
+    try:
+        resp = requests.post(
+            f"{API_URL}/account/login", json={"email": email, "password": password}
         )
 
-        print(response)
+        resp.raise_for_status()
+
+        data = resp.json()
+        user_id = None
+
+        if isinstance(data, str):
+            user_id = data.strip()
+
+        if not user_id:
+            return render_template(
+                "login_form.html", error="Не удалось получить ID пользователя"
+            )
+
+        session["rudzyng_user_id"] = user_id
+        return redirect("/select_level")
+    except requests.exceptions.RequestException as e:
+        print(f"Ошибка API login: {e}")
+        return render_template(
+            "login_form.html", error="Ошибка соединения с сервером авторизации"
+        )
+    except ValueError:
+        return render_template("login_form.html", error="Неверный ответ от сервера")
 
 
 @app.route("/rules")
@@ -214,27 +255,10 @@ def rules():
     return render_template("rules.html")
 
 
-USER_DATA = {"name": "TEST", "password": "TEST_PASSWORD"}
-
-
-def commit_user():
-    db_sess = db_session.create_session()
-
-    user = User(
-        name=USER_DATA["name"],
-    )
-
-    user.set_password(USER_DATA["password"])
-    db_sess.add(user)
-    db_sess.commit()
-    login_user(user)
-
-    return redirect("/select_level")
-
-
 @app.route("/logout")
 @login_required
 def logout():
+    session.pop("rudzyng_user_id", None)
     logout_user()
     return redirect("/")
 
