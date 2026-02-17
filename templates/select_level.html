@@ -54,9 +54,15 @@
             <li class="nav-item">
               <a class="nav-link" href="/">На главную</a>
             </li>
+            {% if not user_id %}
             <li class="nav-item">
-              <a class="nav-link" href="/login">Войти</a>
+              <a class="nav-link" href="/login">войти</a>
             </li>
+            {% endif %}
+
+            {% if user_id %}
+            <h5 style="color:white;">{{ user_id }}</h5>
+            {% endif %}
           </ul>
         </div>
       </div>
