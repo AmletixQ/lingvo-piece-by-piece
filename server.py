@@ -17,9 +17,11 @@ from data.users import User
 from data.animals import Animal
 from data.ModeOne import ModeOne
 from data.ModeTwo import ModeTwo
+from utils.add_points import add_points
+from utils.get_user_id import get_user_id
 
 
-API_URL = "https://рудзынг.рф/api"
+API_URL = "http://158.160.104.26:9001/api"
 
 
 class Task:
@@ -154,28 +156,23 @@ class Task:
         if user_input.lower().strip() != name_animal.lower().strip():
             return False
 
-        user_id = session.get("rudzyng_user_id")
+        user_id = session.get("user_id")
         if not user_id:
             return True
 
         points_to_add = 0
         if mode_value == 1:
-            points_to_add = session.get("user_points_mode1", 0)
+            points_to_add = session.get("user_points_mode1", 0) // 20
         elif mode_value == 2:
-            points_to_add = session.get("user_points_mode2", 0)
+            points_to_add = session.get("user_points_mode2", 0) // 20
 
         if points_to_add <= 0:
             return True
 
         try:
-            resp = requests.post(
-                f"{API_URL}/users/{user_id}/points", json={"amount": points_to_add}
-            )
-            resp.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            print(
-                f"Ошибка начисления баллов: {e} — {resp.text if 'resp' in locals() else ''}"
-            )
+            add_points(points_to_add)
+        except Exception as e:
+            print("Error: ", e)
 
         return True
 
@@ -220,26 +217,14 @@ def login():
 
     if not email or not password:
         return render_template("login_form.html", error="Заполните все поля")
-
     try:
-        resp = requests.post(
-            f"{API_URL}/account/login", json={"email": email, "password": password}
-        )
-
-        resp.raise_for_status()
-
-        data = resp.json()
-        user_id = None
-
-        if isinstance(data, str):
-            user_id = data.strip()
+        user_id = get_user_id(email, password)
 
         if not user_id:
             return render_template(
                 "login_form.html", error="Не удалось получить ID пользователя"
             )
 
-        session["rudzyng_user_id"] = user_id
         return redirect("/select_level")
     except requests.exceptions.RequestException as e:
         print(f"Ошибка API login: {e}")
@@ -258,7 +243,7 @@ def rules():
 @app.route("/logout")
 @login_required
 def logout():
-    session.pop("rudzyng_user_id", None)
+    session.pop("user_id", None)
     logout_user()
     return redirect("/")
 
@@ -279,7 +264,7 @@ def select_level():
             task.update_level()
             return redirect("/mode_two")
 
-    return render_template("select_level.html")
+    return render_template("select_level.html", user_id=session.get("user_id", None))
 
 
 @app.route("/mode_one", methods=["GET", "POST"])
@@ -391,6 +376,7 @@ def mode_one():
                 curent_hint=current_hint,
                 hint_text=hint_text,
                 btn_hint_text=btn_hint_text,
+                user_id=session.get("user_id", None),
             )
 
     if request.method == "GET":
@@ -426,6 +412,7 @@ def mode_one():
         curent_hint=current_hint,
         hint_text=hint_text,
         btn_hint_text=btn_hint_text,
+        user_id=session.get("user_id", None),
     )
 
 
@@ -529,6 +516,7 @@ def mode_two():
                 curent_hint=current_hint,
                 hint_text=hint_text,
                 btn_hint_text=btn_hint_text,
+                user_id=session.get("user_id", None),
             )
 
     if request.method == "GET":
@@ -573,6 +561,7 @@ def mode_two():
             curent_hint=current_hint,
             hint_text=hint_text,
             btn_hint_text=btn_hint_text,
+            user_id=session.get("user_id", None),
         )
 
     name_animal = session.get("name_animal")
@@ -601,6 +590,7 @@ def mode_two():
         curent_hint=current_hint,
         hint_text=hint_text,
         btn_hint_text=btn_hint_text,
+        user_id=session.get("user_id", None),
     )
 
 
